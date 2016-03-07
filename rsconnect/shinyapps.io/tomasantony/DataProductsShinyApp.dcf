@@ -1,0 +1,9 @@
+name: DataProductsShinyApp
+account: tomasantony
+server: shinyapps.io
+appId: 87578
+bundleId: 389171
+url: https://tomasantony.shinyapps.io/DataProductsShinyApp/
+when: 1457332878.27694
+asMultiple: FALSE
+asStatic: FALSE

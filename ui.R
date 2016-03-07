@@ -10,7 +10,7 @@ shinyUI(
                                             h2("How to use the Stock Tracker App", align="center"),
                                             hr(),
                                             h3("Directions"),
-                                            p("To use this application, please click on the banner title line and click \"Demo\" and it will take you to the application.  You may click \"Documentation\" to return to this screen."),
+                                            p("To use this application, please click on the banner title line and click \"StockTracker\" and it will take you to the application.  You may click \"Documentation\" to return to this screen."),
                                             p("The application begins by displaying the stock symbol \"^DJI\" which represents the Dow Jones Industrial Average.  You can enter whatever stock symbol you would like (without the caret \"^\") and the graph will update accordingly.  If your stock symbol is not valid - no graph will display"),
                                             p("There are 3 other areas you can play with to change the current display for the selected stock:"),
                                             tags$ol(tags$li("Date Range - you can change the date range selected for the price display"),
@@ -36,7 +36,7 @@ shinyUI(
                                     )
                             )
                    ),
-                   tabPanel("Demo",
+                   tabPanel("StockTracker",
                             
                             fluidPage(
                                     
