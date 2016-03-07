@@ -1,119 +1,107 @@
 library(shiny)
 
-# Define UI for application that draws a histogram
-shinyUI(fluidPage(
-        
-        
-        tabsetPanel("Running R Code in the cloud",
-                    tabPanel("Introduction",
-                             h2("Titanic- The UNSINKABLE SHIP"),
-                             p("The sinking of the RMS Titanic is one of the most infamous shipwrecks in history.
-                               On April 15, 1912, during her maiden voyage, the Titanic sank after colliding with an iceberg, 
-                               killing 1502 out of 2224 passengers and crew. This sensational tragedy shocked 
-                               the international community and led to better safety regulations for ships. The datasets used
-                               for this analysis is part of a Kaggle challenge. I used train and test datasets to predit the 
-                               Survivability of a person. The dataset can be
-                               downloaded from: https://www.kaggle.com/c/titanic/data"),
-                             
-                             p(" There are three tabs present other than Introduction. 
-                                 1. Age repartition: In this tab, there are two plots. The first chart is a histogram of age 
-                                 range; you can use a control to select the number of age ranges to consider in the plot. The 
-                                 second chart shows the age distribution by class.
-                                 2. Decision tree: The decision tree tab is generated with the package  rpart. Using the menu of check 
-                                 boxes on the right, you can select the variables to use in building the decision tree. The algorithm
-                                 starts with all of the data at the root node and scans all the variables for the best one to split.
-                                 3. Did they survive ?: The Prediction tab provides a menu of characteristics that can be used as inputs to the
-                                 decision tree. The decision tree is used to predict if a passenger will survive or not based on his or 
-                                 her characteristics. In order to select all the characteristics we need to select those characterestics
-                                 under the decision tree."),
-                             
-                             
-                             
-                             img(src="RMS_Titanic.jpg")
-                             ),
-                    
-                  
-                    
-                    tabPanel("Age repartition",
-                             sidebarLayout(position="right",
-                                     sidebarPanel(sliderInput("ageBins", "Number of age ranges to consider", min=1, max=30, value=8)),
-                                     
-                                     mainPanel(
-                                             h2("Survival by Age range"),
-                                             plotOutput("ageHist"),
-                                             plotOutput("dataBoxPlot")
-                                     )
-                             )),
-                    
-                    "Modeling",
-                    
-                    tabPanel("Decision tree", 
-                             sidebarLayout(position="right" ,  
-                                     
-                                     sidebarPanel(
-                                             checkboxGroupInput("treeVariables", label = h4("Variables to take into account"), 
-                                                                choices = list("Sex" = "Sex", "Age" = "Age", "Class" = "Pclass", "Fare"="Fare", 
-                                                                               "Embarkment Port"="Embarked", 
-                                                                               "Title"="Title", "Number of Siblings on board"="SibSp"),
-                                                                selected = list("Sex", "Age")
-                                             )),
-                                     
-                                     mainPanel(
-                                             h2("Decision tree obtained with rpart"),
-                                             plotOutput("decisionTree")
-                                     )
-                             )),
-                    
-                    
-                    tabPanel("Did they survive ?", 
-                             sidebarLayout(position="right",  
-                                     
-                                     sidebarPanel(
-                                             "Select the characteristic of the passenger :",
-                                             radioButtons("Sex", "Sex", choices=list("Male"="male","Female"="female"), selected="male"),
-                                             sliderInput("Age", "Age", min=0, max=100, value = 25),
-                                             radioButtons("Pclass", "Class", choices=list("First"=1, "Second"=2, "Third"=3), selected=2),
-                                             sliderInput("Fare", "Fare", min=1, max=100, value=10),
-                                             selectInput("Embarked", "Embarked at", choices=list("Cherbourg"="C", "Queenstown"="Q", "Southhampton"="S"), selected="S"),
-                                             sliderInput("FamilySize", "Family size", min=1, max=15, value=3),
-#                                              textInput("FamilyName", "Family name", value="Smith"),
-                                             selectInput("Title", "Title", choices=list("Mr"="Mr", "Mrs"="Mrs", "Miss"="Miss", "Master"="Master", "Dr"="Dr",
-                                                                                        "Rev"="Rev", "Sir"="Sir", "Lady"="Lady", "Col"="Col"), selected="Mr"),
-                                             sliderInput("Siblings", "Number of Siblings on board", min=0, max=10, val=2)
-                                             
-                                     ),
-                                     
-                                     mainPanel(
-                                             h2("Prediction according to the current decision tree"),
-                                             "According to the currently computed decision tree, this passenger must have",
-                                             textOutput("didHeSurvive", container=strong), " !",
-                                             br()
-                                             
-                                             
-                                        
-                                             
-                                             
-                                             
-                                             
-                                     )
-                             )),
-
-                 tabPanel("Github link",
-                         
-                                a("https://github.com/tomasantony/DataProductsShinyApp.git")       
-         
-                        )
-                    
-                    )
-        
-        
-        
-                    ))
-
-
-
-
-
-                 
-                  
+# Define UI for application demonstrates R package quantmod graph capabilities
+shinyUI(
+        navbarPage("Stock Tracker App ", inverse=FALSE,
+                   
+                   tabPanel("Documentation",
+                            fluidPage(
+                                    verticalLayout(
+                                            h2("How to use the Stock Tracker App", align="center"),
+                                            hr(),
+                                            h3("Directions"),
+                                            p("To use this application, please click on the banner title line and click \"Demo\" and it will take you to the application.  You may click \"Documentation\" to return to this screen."),
+                                            p("The application begins by displaying the stock symbol \"^DJI\" which represents the Dow Jones Industrial Average.  You can enter whatever stock symbol you would like (without the caret \"^\") and the graph will update accordingly.  If your stock symbol is not valid - no graph will display"),
+                                            p("There are 3 other areas you can play with to change the current display for the selected stock:"),
+                                            tags$ol(tags$li("Date Range - you can change the date range selected for the price display"),
+                                                    tags$li("Chart Theme - you can change how the graph is diplayed by choosing a supported theme"),
+                                                    tags$li("Add Optional Technical Analysis Overlays - you can add additional chart items that will calculate some industry analytics and overlay them on the existing chart.  Also a small warning here - some analytics require at least 3 months of data.  If you don't have at least 3 months of data selected in the date range - you may get an error in display of the graph.")),
+                                            br(),
+                                            h3("Example of some of the popular company symbols that are listed at NASDAQ  Stock exchange"),
+                                            tags$ol (tags$li("AAPL    This is the symbol of Apple inc. "),
+                                                    tags$li("YHOO     This is the symbol of Yahoo! Inc.  "),
+                                                    tags$li("MSFT     This is the symbol of Microsoft Corporation "),
+                                                    tags$li("FB       This is the symbol of  Facebook, Inc. "),
+                                                    tags$li("JNJ      This is the symbol of Johnson & Johnson "),
+                                                    tags$li("GOOGL    This is the symbol of Alphabet Inc. (formerly google)")),
+                                            hr(),
+                                            h3("Please see the banner title named \"Github Link\" for the Github link"),
+                                            hr(),
+                                            h3("Application Source Code"),
+                                            h4("ui.R"),
+                                            pre(includeText("ui.R")),
+                                            h4("server.R"),
+                                            pre(includeText("server.R")),
+                                            p("Note: Some code used in this demo is based on the Shiny quantmod tutorial and has been modified for this assignment")
+                                    )
+                            )
+                   ),
+                   tabPanel("Demo",
+                            
+                            fluidPage(
+                                    
+                                    # Application title
+                                    #titlePanel("R quantmod Demonstration"),
+                                    
+                                    # Sidebar with inputs for quantmod graphing capabilities
+                                    sidebarLayout(
+                                            sidebarPanel(
+                                                    textInput("stock", "Enter a stock symbol", value = "^DJI", width = "30%"),
+                                                    #      submitButton(text="Get Stock Quote"),
+                                                    br(),
+                                                    dateRangeInput("dtRange", "Date Range", start = Sys.Date()-90, end = NULL, min = NULL, max = NULL, format = "yyyy-mm-dd", startview = "month", weekstart = 0, language = "en", separator = " to ", width = NULL),
+                                                    hr(),
+                                                    flowLayout(radioButtons("theme", "Chart Theme:",
+                                                                            c("White" = "white",
+                                                                              "White Mono" = "white.mono",
+                                                                              "Black" = "black",
+                                                                              "Black Mono" = "black.mono",
+                                                                              "Beige" = "beige",
+                                                                              "WSJ"= "wsj"
+                                                                            )),
+                                                               checkboxGroupInput("ta", "Add Optional Technical Analysis Overlays:",
+                                                                                  c("Directional Movement Index" = "addADX()",
+                                                                                    "Average True Range" = "addATR()",
+                                                                                    "Bollenger Bands" = "addBBands()",
+                                                                                    "Commodity Channel Index" = "addCCI()",
+                                                                                    "Chaiken Money Flow" = "addCMF()",
+                                                                                    "Chande Momentum Oscillator" = "addCMO()",
+                                                                                    "Contract Expiration Bars" = "addExpiry()",
+                                                                                    "De-trended Price Oscillator" = "addDPO()",
+                                                                                    "Simple Moving Average" = "addSMA()",
+                                                                                    "Expotential Moving Average" = "addEMA()",
+                                                                                    "Weighted Moving Average" = "addWMA()",
+                                                                                    "Double Expotential Moving Average" = "addDEMA()",
+                                                                                    "Expotential Volume Weighted Moving Average" = "addEVWMA()",
+                                                                                    "ZLEMA" = "addZLEMA()",
+                                                                                    "Moving Average Convergence Divergence" = "addMACD()",
+                                                                                    "Price Envelope" = "addEnvelope()",
+                                                                                    "Relative Strength Index" = "addRSI()",
+                                                                                    "Parabolic Stop and Reversal Indicator" = "addSAR()",
+                                                                                    "Rate of Change" = "addROC()",
+                                                                                    "Stochastic Momemtum Indicator" = "addSMI()"
+                                                                                  ))
                                                                
+                                                    )
+                                            ),
+                                            # Show the demonstration plot
+                                            mainPanel(
+                                                    plotOutput("distPlot", height="885px")
+                                                    #      ,textOutput("dispPrint")
+                                            )
+                                    )
+                                    
+                                    
+                                    
+                                       )
+                   ),
+                   tabPanel("Github Link",
+                            
+                            fluidPage(
+                              
+                              # Application title
+                              #titlePanel("R quantmod Demonstration"),
+                              
+                              a("https://github.com/tomasantony/DataProductsShinyApp.git")   )  )  
+        )
+)

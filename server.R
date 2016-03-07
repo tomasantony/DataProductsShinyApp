@@ -1,64 +1,39 @@
 library(shiny)
-library(rpart)
-library(rattle)
-library(rpart.plot)
-library(RColorBrewer)
-library(ggplot2)
-source("preprocessTitanicData.R")
+library(quantmod)
+options("getSymbols.warning4.0"=FALSE)
 
-
+# Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-        output$dataBoxPlot <- renderPlot({                       
-                          
-                
-                qplot(Age, data=train, geom="density", fill=Pclass, alpha=I(.5),
-                      main="Age distribution by class", xlab="Age",
-                      ylab="Density")
+        
+        # Expression that generates the stock chart plot. The expression is
+        # wrapped in a call to renderPlot to indicate that:
+        #
+        #  1) It is "reactive" and therefore should re-execute automatically
+        #     when inputs change
+        #  2) Its output type is a plot
+        sSymbol <- reactive({
+                tryCatch({
+                        suppressWarnings(getSymbols(input$stock, from=input$dtRange[1], to=input$dtRange[2],
+                                                    auto.assign = FALSE))
+                }, error = function(err) {
+                        return(NULL)
+                })
         })
         
-        output$dataPlot1 <- renderPlot({                         
-                
-                
-                q<-ggplot(train, aes_string(x=input$x, y=input$y, shape=input$toPlot, color=input$toPlot), facets=paste(input$facets, collapse="~"))
-                q<-q + geom_point(size=I(3), xlab="XX", ylab="YY") +
-                        facet_grid(paste(input$facets, collapse="~"), scales="free", space="free")
-                print(q)
-        })
-        
-        output$ageHist <- renderPlot({
-                x    <- train$Age
-                bins <- seq(min(x, na.rm=T), max(x, na.rm=T), length.out = input$ageBins + 1)
-                
-                # draw the histogram with the specified number of bins
-                hist(x, breaks = bins, col = 'darkgray', border = 'white') 
-        })
-        
-        fit <- reactive({
-                variables <- paste(input$treeVariables, collapse="+")
-                #avoid error if no box is checked
-                if (nchar(variables)<2){
-                        variables<-"Sex"
+        output$distPlot <- renderPlot({
+                taStr<-"addVo()"
+                if (!is.null(input$ta)) {
+                        for (ta in input$ta) {
+                                taStr<-paste(taStr, paste(";", ta))
+                        }
                 }
-                args <- list(paste("as.factor(Survived) ~ ", variables))
                 
-                args$data<-train
-                args$method<-"class"
-                # computing the decision tree
-                do.call(rpart, args)
+                if(!is.null(sSymbol())) {
+                        chartSeries(sSymbol(), name=input$stock, TA=taStr, theme=chartTheme(input$theme))
+                }
         })
         
-        output$decisionTree <- renderPlot({  
-                fancyRpartPlot(fit())     
-        })
-        
-        output$didHeSurvive <- renderText({
-                FamilyID2<-paste(input$FamilyName,input$FamilySize)
-                toTest <- data.frame(Sex=input$Sex, Age=input$Age, Pclass=input$Pclass, SibSp=input$Siblings,
-                                     Fare=input$Fare, Embarked=input$Embarked, Title=input$Title, input$FamilySize, FamilyID2=FamilyID2)
-                toTest$Pclass<-factor(toTest$Pclass, levels=c(1,2,3), labels=c("First class", "Second class", "Third class"))
-                #fit is shared bw the "did he survive" and "decision tree" panels
-                Prediction <- predict(fit(), toTest, type="class")
-                write.csv(Prediction, "prediction.csv")
-                return(as.character(Prediction))
+        output$dispPrint <- renderPrint({
+                print(sSymbol())
         })
 })

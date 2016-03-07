@@ -1,0 +1,9 @@
+name: ShinyStockApp
+account: tomasantony
+server: shinyapps.io
+appId: 87527
+bundleId: 389001
+url: https://tomasantony.shinyapps.io/ShinyStockApp/
+when: 1457313575.74763
+asMultiple: FALSE
+asStatic: FALSE
